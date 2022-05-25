@@ -4,10 +4,10 @@
 
 (function() { // avoid variables ending up in the global scope
 
-  document.getElementById("loginButton").addEventListener('click', (e) => {
+  document.getElementById("signInButton").addEventListener('click', (e) => {
     var form = e.target.closest("form");
     if (form.checkValidity()) {
-      makeCall("POST", 'CheckLogin', e.target.closest("form"),
+      makeCall("POST", 'SignIn', e.target.closest("form"),
         function(x) {
           if (x.readyState == XMLHttpRequest.DONE) {
             var message = x.responseText;
@@ -16,21 +16,30 @@
             	sessionStorage.setItem('username', message);
                 window.location.href = "home.html";
                 break;
-              case 400: // bad request
-                document.getElementById("errormessage").textContent = message;
-                break;
-              case 401: // unauthorized
-                  document.getElementById("errormessage").textContent = message;
-                  break;
-              case 500: // server error
-            	document.getElementById("errormessage").textContent = message;
-                break;
+              default: // error message
+                document.getElementById("signInErrorMessage").textContent = message;
             }
           }
         }
       );
     } else {
     	 form.reportValidity();
+    }
+  });
+
+  document.getElementById("signUpButton").addEventListener('click', (e) => {
+    var form = e.target.closest("form");
+    if (form.checkValidity()) {
+      makeCall("POST", 'SignUp', e.target.closest("form"),
+          function(x) {
+            if (x.readyState == XMLHttpRequest.DONE) {
+              var message = x.responseText;
+              document.getElementById("signUpErrorMessage").textContent = message;
+            }
+          }
+      );
+    } else {
+      form.reportValidity();
     }
   });
 
