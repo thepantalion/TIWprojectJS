@@ -7,6 +7,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +17,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 @WebServlet("/SignIn")
+@MultipartConfig
+
 public class SignIn extends HttpServlet {
     private Connection connection = null;
 
