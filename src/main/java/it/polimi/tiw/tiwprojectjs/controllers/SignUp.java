@@ -43,46 +43,47 @@ public class SignUp extends HttpServlet {
 
             if (email == null || username == null || password == null || passwordRepeated == null) throw new Exception();
         } catch (Exception e) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing credential value");
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().println("Missing credential values");
             return;
         }
 
         if (email.isEmpty() || username.isEmpty() || password.isEmpty() || passwordRepeated.isEmpty()) {
-            sendError("One or more fields are empty", request, response);
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().println("One or more fields are empty");
             return;
         }
 
         if(!EmailValidator.getInstance().isValid(email)) {
-            sendError("The inserted email is not valid", request, response);
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().println("The inserted email is not valid");
             return;
         }
 
         if (!password.equals(passwordRepeated)) {
-            sendError("The two passwords do not match", request, response);
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            response.getWriter().println("The two passwords do not match");
             return;
         }
 
         //create User in db
         UserDAO userDAO = new UserDAO(connection);
+
         try {
             userDAO.createUser(email, username, password);
         } catch (SQLException e) {
-            if (e.getMessage().contains("Duplicate"))
-                sendError("The specified username and/or email is already registered", request, response);
-            else response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+
+            if (e.getMessage().contains("Duplicate")) response.getWriter().println("The specified username and/or email is already registered");
+            else response.getWriter().println("The database couldn't keep up with you /:(");
+            return;
         }
 
-        String path = getServletContext().getContextPath() + "/index.html";
-        response.sendRedirect(path);
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.getWriter().println("The new user was successfully registered!");
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException{
         doPost(request, response);
-    }
-
-    private void sendError(String error, HttpServletRequest request, HttpServletResponse response){
-
-        String path = "/index.html";
-
     }
 }

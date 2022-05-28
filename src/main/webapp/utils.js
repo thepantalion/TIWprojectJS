@@ -2,19 +2,19 @@
  * AJAX call management
  */
 
-	function makeCall(method, url, formElement, cback, reset = true) {
-		const req = new XMLHttpRequest(); // visible by closure
+	function makeCall(method, url, formElement, callBackFunction, reset = true) {
+		const request = new XMLHttpRequest(); // visible by closure
 
-		req.onreadystatechange = function() {
-			cback(req)
+		request.onreadystatechange = function() {
+			callBackFunction(request)
 		}; // closure
 
-		req.open(method, url);
+		request.open(method, url);
 
 		if (formElement == null) {
-			req.send();
+			request.send();
 		} else {
-			req.send(new FormData(formElement));
+			request.send(new FormData(formElement));
 		}
 
 		if (formElement !== null && reset === true) {
