@@ -3,18 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <title>MeetMe - Home</title>
+
+    <script src="homeManager.js" charset="utf-8" defer></script>
+    <script src="utils.js" charset="utf-8" defer></script>
 </head>
 
 <body>
     <div>
         <a id="logoutButton">Logout</a>
     </div>
-    <h1>MeetMe - Homepage</h1>
+    <h1>MeetMeJS - Homepage</h1>
     <p>Welcome back, <span id ="idUsername"></span>!</p>
 
     <p id="idMeetingsCreatedParagraph"></p> <!-- shows "You have not created any meeting yet!" or "Meetings you have created"-->
-    <div id="idMeetingsCreatedDiv"> <!-- hide the table if no meetings have been created by the user -->
-        <table>
+    <div> <!-- hide the table if no meetings have been created by the user -->
+        <table id="idMeetingsCreatedTable">
             <thead>
                 <tr>
                     <th>Title</th>
@@ -28,8 +31,8 @@
     </div>
 
     <p id="idMeetingsInvitedParagraph"></p> <!-- shows "You have not been invited to any meeting yet!" or "Meetings you are invited to"-->
-    <div id="idMeetingsInvitedDiv"> <!-- hide the table if no meetings have been created by the user -->
-        <table>
+    <div> <!-- hide the table if no meetings have been created by the user -->
+        <table id="idMeetingsInvitedTable">
             <thead>
                 <tr>
                     <th>Title</th>
