@@ -1,27 +1,37 @@
-{
-    let controller = new Controller();
-    let meetingsCreatedList, meetingsInvitedList;
+let controller;
 
-    window.addEventListener("load", () => {
-        if(sessionStorage.getItem("username") == null) window.location.href = "index.html";
-        else {
-            controller.setup();
-        }
-    })
+(function() {
+    let meetingsCreatedList, meetingsInvitedList, form;
+    controller = new Controller();
 
     function Controller(){
         this.setup = function() {
+            document.getElementById("idUsername").textContent = "Welcome back, " + sessionStorage.getItem("username") + "!";
+
             meetingsCreatedList = new MeetingList(document.getElementById("idMeetingsCreatedParagraph"), document.getElementById("idMeetingsCreatedTable"), document.getElementById("idMeetingsCreatedListContainer"), false);
             meetingsCreatedList.show();
 
             meetingsInvitedList = new MeetingList(document.getElementById("idMeetingsInvitedParagraph"), document.getElementById("idMeetingsInvitedTable"), document.getElementById("idMeetingsInvitedListContainer"), true);
             meetingsInvitedList.show();
 
-        }
-    }
+            form = new Form(document.getElementById("idNewMeetingForm"));
+            form.registerEvents();
 
+            setInterval(this.reset, 40000);
+
+            document.getElementById("logoutButton").addEventListener("click", () => {window.sessionStorage.removeItem("username");});
+        }
+        this.reset = function() {
+            meetingsCreatedList.reset();
+            meetingsCreatedList.show();
+
+            meetingsInvitedList.reset();
+            meetingsInvitedList.show();
+        }
+
+    }
     function MeetingList(meetingParagraph, listContainer, listContainerBody, isInvited) {
-        this.meetingParagrah = meetingParagraph;
+        this.meetingParagraph = meetingParagraph;
         this.listContainer = listContainer;
         this.listContainerBody = listContainerBody;
         this.isInvited = isInvited;
@@ -41,7 +51,10 @@
                             const meetingsCreated = JSON.parse(payload);
 
                             if (meetingsCreated.length === 0) {
-                                meetingParagraph.textContent = "Non c'è niente da mostrare :(";
+                                if(isInvited) meetingParagraph.textContent = "There are no invitations...";
+                                else meetingParagraph.textContent = "You have not created any meeting yet...";
+
+                                listContainer.style.visibility = "hidden"
                                 return;
                             }
 
@@ -54,7 +67,7 @@
                             break;
 
                         default:
-                        //mostra un messaggio
+                            meetingParagraph.textContent = "An error was encountered while retrieving the data..."
                     }
                 }
             }
@@ -63,10 +76,10 @@
             else makeCall("GET", 'GetMeetingsCreated', null, function(request) {callBackFunction(request)});
         };
         this.update = function(meetingList) {
+            const self = this;
             let row, titleCell, dateCell, timeCell, durationCell, hostCell;
             this.listContainerBody.innerHTML = ""; //serve a svuotare la tabella
 
-            const self = this;
             meetingList.forEach(function(meeting) {
                 row = document.createElement("tr");
 
@@ -98,19 +111,28 @@
             self.listContainer.style.visibility = "visible";
         };
     }
+    function Form(formContainer) {
+        this.formContainer = formContainer;
 
-    function Meeting(data){
-        this.id = data.id;
-        this.idCreator = data.idCreator;
-        this.creator = data.creator;
-        this.title = data.title;
-        this.date = data.date;
-        this.time = data.time;
-        this.duration = data.duration;
-        this.numberOfParticipants = data.numberOfParticipants;
-
-        this.show = function() {
-
-        };
+        this.registerEvents = function() {
+            this.formContainer.querySelector("input[name='createTempMeeting']").addEventListener("click", () => {
+                if(formContainer.checkValidity()) {
+                    const value = formContainer.querySelector("input[name='numberOfParticipants']").value;
+                    if(value >= 2) {
+                        modal.style.display = "block";
+                    } else {
+                        alert("The typed amount of users is not valid. Please try again.");
+                    }
+                } else formContainer.reportValidity();
+            });
+        }
+        this.reset = function() {
+            formContainer.reset();
+        }
     }
-}
+
+    window.addEventListener("load", () => {
+        if(sessionStorage.getItem("username") == null) window.location.href = "index.html";
+        else controller.setup();
+    })
+})();

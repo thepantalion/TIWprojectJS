@@ -2,33 +2,34 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>MeetMe - Home</title>
+    <title>MeetMeJS - Home</title>
 
+    <link rel="stylesheet" href="style/modalStyle.css">
     <script src="homeManager.js" charset="utf-8" defer></script>
+    <script src="modalManager.js" charset="utf-8" defer></script>
     <script src="utils.js" charset="utf-8" defer></script>
 </head>
 
 <body>
     <div>
-        <a id="logoutButton">Logout</a>
+        <a id="logoutButton" href="Logout">Logout</a>
     </div>
     <h1>MeetMeJS - Homepage</h1>
-    <p>Welcome back, <span id ="idUsername"></span>!</p>
+    <p id ="idUsername"></p>
 
     <p id="idMeetingsCreatedParagraph"></p> <!-- shows "You have not created any meeting yet!" or "Meetings you have created"-->
-    <div> <!-- hide the table if no meetings have been created by the user -->
-        <table id="idMeetingsCreatedTable">
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Duration</th>
-                </tr>
-            </thead>
-            <tbody id="idMeetingsCreatedListContainer"></tbody>
-        </table>
-    </div>
+     <!-- hide the table if no meetings have been created by the user -->
+    <table id="idMeetingsCreatedTable">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Duration</th>
+            </tr>
+        </thead>
+        <tbody id="idMeetingsCreatedListContainer"></tbody>
+    </table>
 
     <p id="idMeetingsInvitedParagraph"></p> <!-- shows "You have not been invited to any meeting yet!" or "Meetings you are invited to"-->
     <div> <!-- hide the table if no meetings have been created by the user -->
@@ -63,9 +64,32 @@
                 <input type="number" name="numberOfParticipants" min="2" required /></label> <br>
 
                 <p id="meetingFormError"></p>
-                <input type="button" name="createTempMeeting" value="next">
+                <input type="button" name="createTempMeeting" value="proceed" class="proceed">
+                <input type="button" name="clearButton" value="clear" class="clear">
             </fieldset>
         </form>
+    </div>
+
+    <button id="modal-btn"> test modal hello </button>
+
+    <div id="modal" class="modal">
+        <div class="modal-header">
+            <span class="close-btn">×</span>
+            <h1 id="meetingTitle">Meeting title</h1>
+            <span id="date">Date: 23/09/2022 </span> <br>
+            <span id="time">Time: 19:00:00 </span> <br>
+            <span id="duration">Duration: 90min</span> <br>
+            <span id="numberOfParticipants">20 participants </span> <br>
+
+        </div>
+        <div class="modal-content">
+            <p id="modalMessage">generating the list of users...</p>
+            <form>
+                <fieldset id="modalUserlist">
+
+                </fieldset>
+            </form>
+        </div>
     </div>
 
 </body>

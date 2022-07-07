@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class UserDAO {
@@ -44,6 +45,21 @@ public class UserDAO {
             preparedStatement.setString(3, password);
             preparedStatement.executeUpdate();
         }
+    }
+
+    public ArrayList<String> addNewUsers(User creator) throws SQLException {
+        ArrayList<String> userList = new ArrayList<>();
+        String query = "SELECT idUser, username, email FROM db_tiw_project.user WHERE username <> ?";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setString(1, creator.getUsername());
+
+            try (ResultSet result = preparedStatement.executeQuery()){
+                while(result.next()) userList.add(result.getString("username"));
+            }
+        }
+
+        return userList;
     }
 
     public HashMap<String, Pair<User, Boolean>> addNewUsers(User creator, HashMap<String, Pair<User, Boolean>> userMap) throws SQLException {
