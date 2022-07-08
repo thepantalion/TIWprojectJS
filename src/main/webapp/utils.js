@@ -18,6 +18,23 @@
 		}
 	}
 
+	//rimuovere prima della presentazione!!!
+function makeTestCall(method, url, formElement, callBackFunction) {
+	const request = new XMLHttpRequest(); // visible by closure
+
+	request.onreadystatechange = function() {
+		callBackFunction(request)
+	}; // closure
+
+	request.open(method, url);
+
+	if (formElement == null) {
+		request.send();
+	} else {
+		request.send(formElement);
+	}
+}
+
 	/*
 	function displayerrormodal(message) {
 		document.getElementById("id_alerttext").textContent = message;

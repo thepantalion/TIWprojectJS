@@ -1,18 +1,30 @@
-let modalButton = document.getElementById("modal-btn");
-let modal = document.getElementById("modal");
-let closeBtn = document.querySelector(".close-btn");
-let counter = 0;
-
-modalButton.onclick = function(){
-    modal.style.display = "block"
-};
-
 (function() {
+    let modalButton = document.getElementById("modal-btn");
+    let modal = document.getElementById("modal");
+    let closeButton = document.querySelector(".close-btn");
+    let formContainer = document.getElementById("idNewMeetingForm");
+    let counter = 0;
     let userList;
+
+    function clearModal() {
+        controller.reset();
+        userList.clear();
+        modal.style.display = "none"
+    }
+    modalButton.addEventListener("click", () => modal.style.display = "block");
+    closeButton.addEventListener("click", () => {
+        clearModal();
+    })
+    window.addEventListener("click", (e) => {
+        if(e.target === modal) {
+            clearModal();
+        }
+    });
 
     function UserList() {
         this.userList = document.getElementById("modalUserlist");
         this.message = document.getElementById("modalMessage");
+        this.numberOfParticipants = formContainer.querySelector("input[name='numberOfParticipants']").value
 
         this.show = function() {
             const self = this;
@@ -47,12 +59,12 @@ modalButton.onclick = function(){
         }
         this.update = function(userList) {
             const self = this;
-            let checkbox, label;
+            let checkbox, label, button;
 
             userList.forEach(function(username) {
                 checkbox = document.createElement("input");
                 checkbox.type = "checkbox";
-                checkbox.name = username;
+                checkbox.name = "checkbox";
                 checkbox.value = username;
 
                 label = document.createElement("label");
@@ -62,26 +74,45 @@ modalButton.onclick = function(){
 
                 self.userList.append(label);
             });
+
+            self.userList.append(document.createElement("br"));
+
+            button = document.createElement("input");
+            button.type = "button";
+            button.name = "inviteButton";
+            button.value = "invite";
+            button.addEventListener("click", () => {
+                let selectedUsersCounter
+                let checkboxes = document.querySelectorAll('input[name="checkbox"]:checked');
+                checkboxes.forEach(() => selectedUsersCounter++);
+                alert(selectedUsersCounter);
+
+                if(selectedUsersCounter > this.numberOfParticipants - 1 || selectedUsersCounter <= 0) {
+                    counter++;
+                    makeCall("POST", 'CreateMeeting', null, function(request) {callBackFunction(request)});
+                }
+
+                counter = 0;
+            });
+            self.userList.append(button);
+
             //<input type="checkbox" th:name="selectedUsers" th:value="${user.key}" th:checked="${userMap.get(user.key).get_2()}"/>
-            let formContainer = document.getElementById("idNewMeetingForm");
-            self.message.textContent = "Please select max " + (formContainer.querySelector("input[name='numberOfParticipants']").value - 1) + " participants.";
+            self.message.textContent = "Please select max " + (this.numberOfParticipants - 1) + " participants.";
             self.userList.style.visibility = "visible";
         }
-    }
-    function setupHeader() {
-        let formContainer = document.getElementById("idNewMeetingForm");
-
-        document.getElementById("meetingTitle").textContent = formContainer.querySelector("input[name='title']").value;
-        document.getElementById("date").textContent = "Date: " + formContainer.querySelector("input[name='date']").value;
-        document.getElementById("time").textContent = "Time: " + formContainer.querySelector("input[name='time']").value;
-        document.getElementById("duration").textContent = "Duration: " + formContainer.querySelector("input[name='duration']").value + "min";
-        document.getElementById("numberOfParticipants").textContent = "Maximum number of participants: " + formContainer.querySelector("input[name='numberOfParticipants']").value;
+        this.clear = function() {
+            this.userList.replaceChildren();
+        }
     }
 
     const config = { attributeFilter: [ "style" ] };
     function callback() {
          if(modal.style.display === 'block'){
-             setupHeader();
+             document.getElementById("meetingTitle").textContent = formContainer.querySelector("input[name='title']").value;
+             document.getElementById("date").textContent = "Date: " + formContainer.querySelector("input[name='date']").value;
+             document.getElementById("time").textContent = "Time: " + formContainer.querySelector("input[name='time']").value;
+             document.getElementById("duration").textContent = "Duration: " + formContainer.querySelector("input[name='duration']").value + "min";
+             document.getElementById("numberOfParticipants").textContent = "Maximum number of participants: " + formContainer.querySelector("input[name='numberOfParticipants']").value;
 
              userList = new UserList();
              userList.show();
@@ -91,15 +122,3 @@ modalButton.onclick = function(){
     let observer = new MutationObserver(callback);
     observer.observe(modal, config);
 })();
-
-closeBtn.onclick = function(){
-    controller.reset();
-    modal.style.display = "none"
-}
-
-window.onclick = function(e){
-    if(e.target === modal){
-        controller.reset();
-        modal.style.display = "none"
-    }
-}

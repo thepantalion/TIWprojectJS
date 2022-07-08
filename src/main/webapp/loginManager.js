@@ -11,9 +11,38 @@
     }
   });
 
-  document.getElementById("signInButton").addEventListener('click', (event) => {
+  //rimuovere prima della presentazione!!!
+  document.getElementById("testButton").addEventListener('click', (event) => {
     const form = event.target.closest("form");
     const formData = new FormData(form);
+    formData.set("username", "thepantalion");
+    formData.set("password", "08032000");
+
+      makeTestCall("POST", 'SignIn', formData, function (x) {
+        if (x.readyState === XMLHttpRequest.DONE) {
+          const message = x.responseText;
+
+          switch (x.status) {
+            case 200:
+              sessionStorage.setItem('username', message);
+              window.location.href = "home.html";
+              break;
+            case 400: // bad request
+              alert(message);
+              break;
+            case 401: // unauthorized
+              alert(message);
+              break;
+            case 500: // server error
+              alert(message);
+              break;
+          }
+        }
+      });
+  });
+
+  document.getElementById("signInButton").addEventListener('click', (event) => {
+    const form = event.target.closest("form");
 
     if (form.checkValidity()) {
       makeCall("POST", 'SignIn', event.target.closest("form"), function (x) {

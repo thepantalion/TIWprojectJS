@@ -1,4 +1,4 @@
-let controller;
+let controller; //controller needs to be exposed to all
 
 (function() {
     let meetingsCreatedList, meetingsInvitedList, form;
@@ -28,10 +28,8 @@ let controller;
             meetingsInvitedList.reset();
             meetingsInvitedList.show();
         }
-
     }
     function MeetingList(meetingParagraph, listContainer, listContainerBody, isInvited) {
-        this.meetingParagraph = meetingParagraph;
         this.listContainer = listContainer;
         this.listContainerBody = listContainerBody;
         this.isInvited = isInvited;

@@ -35,6 +35,12 @@
     animation-duration: 0.4s
 }
 
+#modalUserlist {
+    max-height: 400px;
+    min-height: auto;
+    overflow-y: auto;
+}
+
 .close-btn {
     float: right;
     color: lightgray;
