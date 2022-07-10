@@ -1,12 +1,9 @@
 package it.polimi.tiw.tiwprojectjs.controllers;
 
 import com.google.gson.Gson;
-import it.polimi.tiw.tiwprojectjs.beans.Meeting;
 import it.polimi.tiw.tiwprojectjs.beans.User;
-import it.polimi.tiw.tiwprojectjs.dao.MeetingDAO;
 import it.polimi.tiw.tiwprojectjs.dao.UserDAO;
 import it.polimi.tiw.tiwprojectjs.utilities.ConnectionHandler;
-import it.polimi.tiw.tiwprojectjs.utilities.Pair;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -18,7 +15,6 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 @WebServlet("/GetUsers")
 public class GetUsers extends HttpServlet {
@@ -40,7 +36,7 @@ public class GetUsers extends HttpServlet {
         ArrayList<String> userList;
 
         try {
-            userList = userDAO.addNewUsers(user);
+            userList = userDAO.getUsers(user);
         } catch (SQLException e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             response.getWriter().println("It was not possible to retrieve some data.");

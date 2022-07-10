@@ -1,6 +1,7 @@
+let modal = document.getElementById("modal");
+
 (function() {
     let modalButton = document.getElementById("modal-btn");
-    let modal = document.getElementById("modal");
     let closeButton = document.querySelector(".close-btn");
     let formContainer = document.getElementById("idNewMeetingForm");
     let counter = 0;
@@ -9,12 +10,21 @@
     function clearModal() {
         controller.reset();
         userList.clear();
+        counter = 0;
         modal.style.display = "none"
     }
-    modalButton.addEventListener("click", () => modal.style.display = "block");
+    modalButton.addEventListener("click", () => {
+        formContainer.querySelector("input[name='title']").value = "test";
+        formContainer.querySelector("input[name='date']").value = "2023-12-10";
+        formContainer.querySelector("input[name='time']").value = "12:20";
+        formContainer.querySelector("input[name='duration']").value = 30;
+        formContainer.querySelector("input[name='numberOfParticipants']").value = 5;
+
+        modal.style.display = "block"
+    });
     closeButton.addEventListener("click", () => {
         clearModal();
-    })
+    });
     window.addEventListener("click", (e) => {
         if(e.target === modal) {
             clearModal();
@@ -29,7 +39,7 @@
         this.show = function() {
             const self = this;
 
-            function callBackFunction(request) {
+            function getUsersResponseManager(request) {
                 if (request.readyState === 4) {
                     const payload = request.responseText;
 
@@ -43,6 +53,55 @@
                             }
 
                             self.update(userList);
+                            document.querySelector('input[name="inviteButton"]').addEventListener("click", () => {
+                                let selectedUsersCounter = 0;
+                                let formData = new FormData(document.getElementById("modalUserlist").parentNode.parentNode);
+                                let checkboxes = document.querySelectorAll('input[name="checkbox"]:checked');
+                                checkboxes.forEach(() => selectedUsersCounter++);
+
+                                formData.set("title", formContainer.querySelector("input[name='title']").value);
+                                formData.set("date", formContainer.querySelector("input[name='date']").value);
+                                formData.set("time", formContainer.querySelector("input[name='time']").value);
+                                formData.set("duration", formContainer.querySelector("input[name='duration']").value);
+                                formData.set("numberOfParticipants", formContainer.querySelector("input[name='numberOfParticipants']").value);
+
+                                if(selectedUsersCounter > self.numberOfParticipants - 1 || selectedUsersCounter <= 0) {
+                                    counter++;
+                                }
+
+                                function createMeetingResponseManager(request) {
+                                    if (request.readyState === 4) {
+                                        const payload = request.responseText;
+
+                                        switch (request.status) {
+                                            case 200:
+                                                clearModal();
+                                                break;
+
+                                            case 400:
+                                                if(payload === "count") {
+                                                    counter++;
+                                                    self.message.textContent = "The server detected this as a bad request and gave a penalty.";
+                                                } else if(counter >= 3) {
+                                                    alert("You reached the maximum number of available attempts. Please try again.");
+                                                    clearModal();
+                                                } else {
+                                                    self.message.textContent = "Please deselect at least " + (selectedUsersCounter - self.numberOfParticipants + 1) + "users to proceed.";
+                                                }
+                                                break;
+
+                                            case 403:
+                                                window.location.href = request.getResponseHeader("Location");
+                                                window.sessionStorage.removeItem('username');
+                                                break;
+
+                                            default:
+                                                self.message.textContent = "An error was encountered while processing your request..."
+                                        }
+                                    }
+                                }
+                                makeCall("POST", 'CreateMeeting', formData, function(request) {createMeetingResponseManager(request)}, true);
+                            });
                             break;
 
                         case 403:
@@ -55,48 +114,36 @@
                     }
                 }
             }
-            makeCall("GET", 'GetUsers', null, function(request) {callBackFunction(request)});
+            makeCall("GET", 'GetUsers', null, function(request) {getUsersResponseManager(request)}, false);
         }
         this.update = function(userList) {
             const self = this;
             let checkbox, label, button;
 
+            let checkboxes = document.querySelectorAll('input[name="checkbox"]');
+            let isNotPresent = true;
             userList.forEach(function(username) {
-                checkbox = document.createElement("input");
-                checkbox.type = "checkbox";
-                checkbox.name = "checkbox";
-                checkbox.value = username;
+                checkboxes.forEach(function(checkbox) {
+                    if(username === checkbox.value) isNotPresent = false;
+                })
 
-                label = document.createElement("label");
-                label.textContent = username;
-                label.append(checkbox);
-                label.append(document.createElement("br"));
+                if(isNotPresent === true) {
+                    checkbox = document.createElement("input");
+                    checkbox.type = "checkbox";
+                    checkbox.name = "checkbox";
+                    checkbox.value = username;
 
-                self.userList.append(label);
-            });
+                    label = document.createElement("label");
+                    label.textContent = username;
+                    label.append(checkbox);
+                    label.append(document.createElement("br"));
 
-            self.userList.append(document.createElement("br"));
+                    self.userList.append(label);
 
-            button = document.createElement("input");
-            button.type = "button";
-            button.name = "inviteButton";
-            button.value = "invite";
-            button.addEventListener("click", () => {
-                let selectedUsersCounter
-                let checkboxes = document.querySelectorAll('input[name="checkbox"]:checked');
-                checkboxes.forEach(() => selectedUsersCounter++);
-                alert(selectedUsersCounter);
-
-                if(selectedUsersCounter > this.numberOfParticipants - 1 || selectedUsersCounter <= 0) {
-                    counter++;
-                    makeCall("POST", 'CreateMeeting', null, function(request) {callBackFunction(request)});
+                    isNotPresent = true;
                 }
-
-                counter = 0;
             });
-            self.userList.append(button);
 
-            //<input type="checkbox" th:name="selectedUsers" th:value="${user.key}" th:checked="${userMap.get(user.key).get_2()}"/>
             self.message.textContent = "Please select max " + (this.numberOfParticipants - 1) + " participants.";
             self.userList.style.visibility = "visible";
         }

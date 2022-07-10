@@ -47,7 +47,7 @@ public class UserDAO {
         }
     }
 
-    public ArrayList<String> addNewUsers(User creator) throws SQLException {
+    public ArrayList<String> getUsers(User creator) throws SQLException {
         ArrayList<String> userList = new ArrayList<>();
         String query = "SELECT idUser, username, email FROM db_tiw_project.user WHERE username <> ?";
 
@@ -62,22 +62,21 @@ public class UserDAO {
         return userList;
     }
 
-    public HashMap<String, Pair<User, Boolean>> addNewUsers(User creator, HashMap<String, Pair<User, Boolean>> userMap) throws SQLException {
+    public HashMap<String, Pair<User, Boolean>> getHashUsers(User creator) throws SQLException {
         String query = "SELECT idUser, username, email FROM db_tiw_project.user WHERE username <> ?";
+        HashMap<String, Pair<User, Boolean>> userMap = new HashMap<>();
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setString(1, creator.getUsername());
 
             try (ResultSet result = preparedStatement.executeQuery()){
                 while(result.next()){
-                    if(!userMap.containsKey(result.getString("username"))) {
-                        User user = new User();
-                        user.setId(result.getInt("idUser"));
-                        user.setUsername(result.getString("username"));
-                        user.setEmail(result.getString("email"));
+                    User user = new User();
+                    user.setId(result.getInt("idUser"));
+                    user.setUsername(result.getString("username"));
+                    user.setEmail(result.getString("email"));
 
-                        userMap.put(result.getString("username"), new Pair<>(user, Boolean.FALSE));
-                    }
+                    userMap.put(result.getString("username"), new Pair<>(user, Boolean.FALSE));
                 }
             }
         }

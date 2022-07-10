@@ -2,7 +2,7 @@
  * AJAX call management
  */
 
-	function makeCall(method, url, formElement, callBackFunction) {
+	function makeCall(method, url, dataToSend, callBackFunction, isJSON) {
 		const request = new XMLHttpRequest(); // visible by closure
 
 		request.onreadystatechange = function() {
@@ -11,29 +11,16 @@
 
 		request.open(method, url);
 
-		if (formElement == null) {
-			request.send();
+		if(isJSON === true) {
+			request.send(dataToSend);
 		} else {
-			request.send(new FormData(formElement));
+			if (dataToSend == null) {
+				request.send();
+			} else {
+				request.send(new FormData(dataToSend));
+			}
 		}
 	}
-
-	//rimuovere prima della presentazione!!!
-function makeTestCall(method, url, formElement, callBackFunction) {
-	const request = new XMLHttpRequest(); // visible by closure
-
-	request.onreadystatechange = function() {
-		callBackFunction(request)
-	}; // closure
-
-	request.open(method, url);
-
-	if (formElement == null) {
-		request.send();
-	} else {
-		request.send(formElement);
-	}
-}
 
 	/*
 	function displayerrormodal(message) {
