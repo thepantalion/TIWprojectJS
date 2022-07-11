@@ -44,6 +44,7 @@ public class CreateMeeting extends HttpServlet {
         doPost(request, response);
     }
 
+    @SuppressWarnings("DuplicatedCode")
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         HttpSession session = request.getSession();
         String title;
@@ -52,6 +53,8 @@ public class CreateMeeting extends HttpServlet {
         Date date;
         int numberOfParticipants;
         Meeting tempMeeting;
+
+        boolean noSelection = false;
         int counter = 0;
 
         try {
@@ -76,10 +79,14 @@ public class CreateMeeting extends HttpServlet {
 
             Date result = calendarA.getTime();
 
-            if (result.before(Calendar.getInstance().getTime())) throw new Exception();
+            if (result.before(Calendar.getInstance().getTime())) {
+                response.getWriter().println("past");
+                throw new Exception();
+            }
+
+            if(request.getParameterValues("selectedUsers") == null) noSelection = true;
         } catch(Exception e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            response.getWriter().println("count");
             return;
         }
 
@@ -94,14 +101,6 @@ public class CreateMeeting extends HttpServlet {
             return;
         }
 
-        ArrayList<String> selectedUsers = new ArrayList<>(Arrays.asList(request.getParameterValues("checkbox")));
-
-        for(String username : selectedUsers){
-            if(userMap.containsKey(username)){
-                userMap.get(username).set_2(Boolean.TRUE);
-            }
-        }
-
         if(session.getAttribute("title") != null) {
             if(title.equals(session.getAttribute("title"))) counter = (int) session.getAttribute("counter");
             else {
@@ -113,14 +112,28 @@ public class CreateMeeting extends HttpServlet {
             session.setAttribute("counter", 0);
         }
 
+        ArrayList<String> selectedUsers = new ArrayList<>();
+
+        if(!noSelection) {
+            selectedUsers = (ArrayList<String>) Arrays.asList(request.getParameterValues("checkbox"));
+
+            for(String username : selectedUsers){
+                if(userMap.containsKey(username)){
+                    userMap.get(username).set_2(Boolean.TRUE);
+                }
+            }
+        }
+
         tempMeeting = new Meeting(user.getUsername(), title, date, time, duration, numberOfParticipants);
 
         if(selectedUsers.size() > tempMeeting.getNumberOfParticipants() - 1 || selectedUsers.size() <= 0) {
             counter++;
+            session.setAttribute("counter", counter);
 
             if(counter >= 3) {
                 session.removeAttribute("title");
                 session.removeAttribute("counter");
+                response.getWriter().println("terminate");
             }
 
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -137,115 +150,4 @@ public class CreateMeeting extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
-
-    /* CREATEMEETING
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        HttpSession session = request.getSession();
-
-        if(request.getParameterValues("selectedUsers") == null){
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST,"Missing valid parameters.");
-        }
-
-        User user = (User) session.getAttribute("user");
-        Meeting tempMeeting = (Meeting) session.getAttribute("tempMeeting");
-        HashMap<String, Pair<User, Boolean>> userMap = (HashMap<String, Pair<User, Boolean>>) session.getAttribute("userMap");
-
-        ArrayList<String> selectedUsers = new ArrayList<>(Arrays.asList(request.getParameterValues("selectedUsers")));
-
-        for(String username : userMap.keySet()){
-            userMap.get(username).set_2(Boolean.FALSE);
-        }
-
-        for(String username : selectedUsers){
-            if(userMap.containsKey(username)){
-                userMap.get(username).set_2(Boolean.TRUE);
-            }
-        }
-
-        session.setAttribute("userMap", userMap);
-
-        if(selectedUsers.size() > tempMeeting.getNumberOfParticipants() - 1 || selectedUsers.size() <= 0){
-            int counter = (int) session.getAttribute("counter");
-            counter++;
-            session.setAttribute("counter", counter);
-
-            if(counter <= 2){
-                session.setAttribute("errorMessage", "You selected too many users. Please unselect at least " + (selectedUsers.size()- tempMeeting.getNumberOfParticipants()+1) + " users.");
-                response.sendRedirect(getServletContext().getContextPath() + "/Registry");
-                return;
-            } else {
-                response.sendRedirect(getServletContext().getContextPath() + "/Undo");
-                return;
-            }
-        }
-
-        try{
-            MeetingDAO meetingDAO = new MeetingDAO(connection);
-            meetingDAO.createMeeting(user, tempMeeting, userMap);
-        } catch (Exception exception) {
-            exception.printStackTrace();
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "There was a problem with the database. :(");
-            return;
-        }
-
-        response.sendRedirect(getServletContext().getContextPath() + "/Home");
-    }
-
-     */ //CREATEMEETING
-
-    /* NEWMEETING
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        HttpSession session = request.getSession();
-
-        String title;
-        int duration;
-        Time time;
-        Date date;
-        int numberOfParticipants;
-
-        User user = (User) request.getSession().getAttribute("user");
-
-        try {
-            title = StringEscapeUtils.escapeJava(request.getParameter("title"));
-            duration = Integer.parseInt(StringEscapeUtils.escapeJava(request.getParameter("duration")));
-            time = new Time(new SimpleDateFormat("HH:mm").parse(StringEscapeUtils.escapeJava(request.getParameter("time"))).getTime());
-            date = new SimpleDateFormat("yyyy-MM-dd").parse(request.getParameter("date"));
-            numberOfParticipants = Integer.parseInt(StringEscapeUtils.escapeJava(request.getParameter("numberOfParticipants")));
-
-            if (title == null || duration == 0 || date == null || numberOfParticipants == 0 || title.isEmpty()) throw new Exception();
-        } catch (Exception e) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Incorrect param values");
-            return;
-        }
-
-        if (duration <= 0 || numberOfParticipants < 1){
-            sendError("The numbers entered are not correct.", request, response);
-            return;
-        }
-
-        Calendar calendarA = Calendar.getInstance();
-        calendarA.setTime(date);
-        Calendar calendarB = Calendar.getInstance();
-        calendarB.setTime(time);
-
-        calendarA.set(Calendar.HOUR_OF_DAY, calendarB.get(Calendar.HOUR_OF_DAY));
-        calendarA.set(Calendar.MINUTE, calendarB.get(Calendar.MINUTE));
-        calendarA.set(Calendar.SECOND, calendarB.get(Calendar.SECOND));
-        calendarA.set(Calendar.MILLISECOND, calendarB.get(Calendar.MILLISECOND));
-
-        Date result = calendarA.getTime();
-
-        if (result.before(Calendar.getInstance().getTime())){
-            sendError("You cannot enter a prior date to today.", request, response);
-            return;
-        }
-
-        Meeting tempMeeting = new Meeting(user.getUsername(), title, date, time, duration, numberOfParticipants);
-        request.getSession().setAttribute("tempMeeting", tempMeeting);
-        request.getSession().setAttribute("counter", 0);
-        request.getSession().setAttribute("userMap", new HashMap<String, Pair<User, Boolean>>());
-
-        response.sendRedirect(getServletContext().getContextPath() + "/Registry");
-    }
-     */
 }

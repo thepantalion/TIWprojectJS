@@ -35,6 +35,7 @@ let modal = document.getElementById("modal");
         this.userList = document.getElementById("modalUserlist");
         this.message = document.getElementById("modalMessage");
         this.numberOfParticipants = formContainer.querySelector("input[name='numberOfParticipants']").value
+        this.notSent = true;
 
         this.show = function() {
             const self = this;
@@ -54,53 +55,59 @@ let modal = document.getElementById("modal");
 
                             self.update(userList);
                             document.querySelector('input[name="inviteButton"]').addEventListener("click", () => {
-                                let selectedUsersCounter = 0;
-                                let formData = new FormData(document.getElementById("modalUserlist").parentNode.parentNode);
-                                let checkboxes = document.querySelectorAll('input[name="checkbox"]:checked');
-                                checkboxes.forEach(() => selectedUsersCounter++);
+                                if(self.notSent) {
+                                    let selectedUsersCounter = 0;
+                                    let formData = new FormData(document.getElementById("modalUserlist").parentNode.parentNode);
+                                    let checkboxes = document.querySelectorAll('input[name="checkbox"]:checked');
+                                    checkboxes.forEach(() => selectedUsersCounter++);
 
-                                formData.set("title", formContainer.querySelector("input[name='title']").value);
-                                formData.set("date", formContainer.querySelector("input[name='date']").value);
-                                formData.set("time", formContainer.querySelector("input[name='time']").value);
-                                formData.set("duration", formContainer.querySelector("input[name='duration']").value);
-                                formData.set("numberOfParticipants", formContainer.querySelector("input[name='numberOfParticipants']").value);
+                                    formData.set("title", formContainer.querySelector("input[name='title']").value);
+                                    formData.set("date", formContainer.querySelector("input[name='date']").value);
+                                    formData.set("time", formContainer.querySelector("input[name='time']").value);
+                                    formData.set("duration", formContainer.querySelector("input[name='duration']").value);
+                                    formData.set("numberOfParticipants", formContainer.querySelector("input[name='numberOfParticipants']").value);
 
-                                if(selectedUsersCounter > self.numberOfParticipants - 1 || selectedUsersCounter <= 0) {
-                                    counter++;
-                                }
+                                    if (selectedUsersCounter > self.numberOfParticipants - 1 || selectedUsersCounter <= 0) {
+                                        counter++;
+                                    }
 
-                                function createMeetingResponseManager(request) {
-                                    if (request.readyState === 4) {
-                                        const payload = request.responseText;
+                                    function createMeetingResponseManager(request) {
+                                        if (request.readyState === 4) {
+                                            const payload = request.responseText;
 
-                                        switch (request.status) {
-                                            case 200:
-                                                clearModal();
-                                                break;
-
-                                            case 400:
-                                                if(payload === "count") {
-                                                    counter++;
-                                                    self.message.textContent = "The server detected this as a bad request and gave a penalty.";
-                                                } else if(counter >= 3) {
-                                                    alert("You reached the maximum number of available attempts. Please try again.");
+                                            switch (request.status) {
+                                                case 200:
                                                     clearModal();
-                                                } else {
-                                                    self.message.textContent = "Please deselect at least " + (selectedUsersCounter - self.numberOfParticipants + 1) + "users to proceed.";
-                                                }
-                                                break;
+                                                    break;
 
-                                            case 403:
-                                                window.location.href = request.getResponseHeader("Location");
-                                                window.sessionStorage.removeItem('username');
-                                                break;
+                                                case 400:
+                                                    if (payload === "past") {
+                                                        alert("The server refused to process the provided data.");
+                                                        clearModal();
+                                                    } else if (counter >= 3 || payload === "terminate") {
+                                                        alert("You reached the maximum number of available attempts. Please try again.");
+                                                        clearModal();
+                                                    } else {
+                                                        self.notSent = true;
+                                                        self.message.textContent = "Please deselect at least " + (selectedUsersCounter - self.numberOfParticipants + 1) + " users to proceed. (available attempts: " + (3 - counter) + ")";
+                                                    }
+                                                    break;
 
-                                            default:
-                                                self.message.textContent = "An error was encountered while processing your request..."
+                                                case 403:
+                                                    window.location.href = request.getResponseHeader("Location");
+                                                    window.sessionStorage.removeItem('username');
+                                                    break;
+
+                                                default:
+                                                    self.notSent = true;
+                                                    self.message.textContent = "An error was encountered while processing your request..."
+                                            }
                                         }
                                     }
+
+                                    makeCall("POST", 'CreateMeeting', formData, function (request) {createMeetingResponseManager(request)}, true);
+                                    self.notSent = false;
                                 }
-                                makeCall("POST", 'CreateMeeting', formData, function(request) {createMeetingResponseManager(request)}, true);
                             });
                             break;
 
@@ -114,11 +121,12 @@ let modal = document.getElementById("modal");
                     }
                 }
             }
+
             makeCall("GET", 'GetUsers', null, function(request) {getUsersResponseManager(request)}, false);
         }
         this.update = function(userList) {
             const self = this;
-            let checkbox, label, button;
+            let checkbox, label;
 
             let checkboxes = document.querySelectorAll('input[name="checkbox"]');
             let isNotPresent = true;

@@ -117,7 +117,28 @@ let controller; //controller needs to be exposed to all
                 if(formContainer.checkValidity()) {
                     const value = formContainer.querySelector("input[name='numberOfParticipants']").value;
                     if(value >= 2) {
-                        modal.style.display = "block";
+                        function verifyMeetingResponseManager(request) {
+                            if (request.readyState === 4) {
+                                switch (request.status) {
+                                    case 200:
+                                        modal.style.display = "block";
+                                        break;
+
+                                    case 400:
+                                        alert("The provided data in not correct. Please change it before submitting invitations.");
+                                        break;
+
+                                    case 403:
+                                        window.location.href = request.getResponseHeader("Location");
+                                        window.sessionStorage.removeItem('username');
+                                        break;
+
+                                    default:
+                                       alert("An error was encountered while processing your request...");
+                                }
+                            }
+                        }
+                        makeCall("POST", 'VerifyMeeting', formContainer, function(request) {verifyMeetingResponseManager(request)}, false);
                     } else {
                         alert("The typed amount of users is not valid. Please try again.");
                     }
