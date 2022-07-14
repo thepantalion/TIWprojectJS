@@ -84,7 +84,7 @@ public class CreateMeeting extends HttpServlet {
                 throw new Exception();
             }
 
-            if(request.getParameterValues("selectedUsers") == null) noSelection = true;
+            if(request.getParameterValues("checkbox") == null) noSelection = true;
         } catch(Exception e) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
@@ -112,17 +112,17 @@ public class CreateMeeting extends HttpServlet {
             session.setAttribute("counter", 0);
         }
 
-        ArrayList<String> selectedUsers = new ArrayList<>();
+        ArrayList<String> selectedUsers;
 
         if(!noSelection) {
-            selectedUsers = (ArrayList<String>) Arrays.asList(request.getParameterValues("checkbox"));
+            selectedUsers = new ArrayList<>(Arrays.asList(request.getParameterValues("checkbox")));
 
             for(String username : selectedUsers){
                 if(userMap.containsKey(username)){
                     userMap.get(username).set_2(Boolean.TRUE);
                 }
             }
-        }
+        } else selectedUsers = new ArrayList<>();
 
         tempMeeting = new Meeting(user.getUsername(), title, date, time, duration, numberOfParticipants);
 
