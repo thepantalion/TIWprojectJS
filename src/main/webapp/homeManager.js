@@ -115,8 +115,9 @@ let controller; //controller needs to be exposed to all
         this.registerEvents = function() {
             this.formContainer.querySelector("input[name='createTempMeeting']").addEventListener("click", () => {
                 if(formContainer.checkValidity()) {
-                    const value = formContainer.querySelector("input[name='numberOfParticipants']").value;
-                    if(value >= 2) {
+                    const number = formContainer.querySelector("input[name='numberOfParticipants']").value;
+                    const duration = formContainer.querySelector("input[name='duration']").value;
+                    if(number >= 2 && duration > 0) {
                         function verifyMeetingResponseManager(request) {
                             if (request.readyState === 4) {
                                 switch (request.status) {
@@ -140,7 +141,7 @@ let controller; //controller needs to be exposed to all
                         }
                         makeCall("POST", 'VerifyMeeting', formContainer, function(request) {verifyMeetingResponseManager(request)}, false);
                     } else {
-                        alert("The typed amount of users is not valid. Please try again.");
+                        alert("The typed amount of users or the duration of the meeting are not valid. Please try again.");
                     }
                 } else formContainer.reportValidity();
             });
@@ -153,5 +154,5 @@ let controller; //controller needs to be exposed to all
     window.addEventListener("load", () => {
         if(sessionStorage.getItem("username") == null) window.location.href = "index.html";
         else controller.setup();
-    })
+    });
 })();

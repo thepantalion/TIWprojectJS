@@ -27,6 +27,8 @@
         <url-pattern>/GetMeetingsCreated</url-pattern>
         <url-pattern>/GetMeetingsInvited</url-pattern>
         <url-pattern>/GetUsers</url-pattern>
+        <url-pattern>/VerifyMeeting</url-pattern>
+        <url-pattern>/CreateMeeting</url-pattern>
     </filter-mapping>
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>

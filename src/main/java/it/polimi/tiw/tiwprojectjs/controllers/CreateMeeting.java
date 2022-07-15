@@ -134,7 +134,7 @@ public class CreateMeeting extends HttpServlet {
                 session.removeAttribute("title");
                 session.removeAttribute("counter");
                 response.getWriter().println("terminate");
-            }
+            } else if(noSelection) response.getWriter().println("zero");
 
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;

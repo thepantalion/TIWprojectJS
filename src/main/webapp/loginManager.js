@@ -65,7 +65,7 @@
               break;
           }
         }
-      });
+      }, false);
     } else {
       form.reportValidity();
     }
@@ -95,7 +95,7 @@
                   break;
               }
             }
-          });
+          }, false);
         }
         else alert("The email address is not valid");
       }

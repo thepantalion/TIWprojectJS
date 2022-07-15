@@ -30,12 +30,63 @@ let modal = document.getElementById("modal");
             clearModal();
         }
     });
+    document.querySelector('input[name="inviteButton"]').addEventListener("click", () => {
+        let selectedUsersCounter = 0;
+        let formData = new FormData(document.getElementById("modalUserlist").parentNode.parentNode);
+        let checkboxes = document.querySelectorAll('input[name="checkbox"]:checked');
+        checkboxes.forEach(() => selectedUsersCounter++);
+
+        formData.set("title", formContainer.querySelector("input[name='title']").value);
+        formData.set("date", formContainer.querySelector("input[name='date']").value);
+        formData.set("time", formContainer.querySelector("input[name='time']").value);
+        formData.set("duration", formContainer.querySelector("input[name='duration']").value);
+        formData.set("numberOfParticipants", formContainer.querySelector("input[name='numberOfParticipants']").value);
+
+        if (selectedUsersCounter > self.numberOfParticipants - 1 || selectedUsersCounter <= 0) {
+            counter++;
+        }
+
+        function createMeetingResponseManager(request) {
+            if (request.readyState === 4) {
+                const payload = request.responseText;
+
+                switch (request.status) {
+                    case 200:
+                        clearModal();
+                        break;
+
+                    case 400:
+                        if (payload === "past") {
+                            alert("The server refused to process the provided data.");
+                            clearModal();
+                        } else if (counter >= 3 || payload === "terminate") {
+                            alert("You reached the maximum number of available attempts. Please try again.");
+                            clearModal();
+                        } else if(payload === "zero"){
+                            self.message.textContent = "Please select max " + (this.numberOfParticipants - 1) + " participants. (available attempts: " + (3 - counter) + ")";
+                        } else {
+                            self.message.textContent = "Please deselect at least " + (selectedUsersCounter - self.numberOfParticipants + 1) + " users to proceed. (available attempts: " + (3 - counter) + ")";
+                        }
+                        break;
+
+                    case 403:
+                        window.location.href = request.getResponseHeader("Location");
+                        window.sessionStorage.removeItem('username');
+                        break;
+
+                    default:
+                        self.message.textContent = "An error was encountered while processing your request..."
+                }
+            }
+        }
+
+        makeCall("POST", 'CreateMeeting', formData, function (request) {createMeetingResponseManager(request)}, true);
+    });
 
     function UserList() {
         this.userList = document.getElementById("modalUserlist");
         this.message = document.getElementById("modalMessage");
         this.numberOfParticipants = formContainer.querySelector("input[name='numberOfParticipants']").value
-        this.notSent = true;
 
         this.show = function() {
             const self = this;
@@ -54,61 +105,6 @@ let modal = document.getElementById("modal");
                             }
 
                             self.update(userList);
-                            document.querySelector('input[name="inviteButton"]').addEventListener("click", () => {
-                                if(self.notSent) {
-                                    let selectedUsersCounter = 0;
-                                    let formData = new FormData(document.getElementById("modalUserlist").parentNode.parentNode);
-                                    let checkboxes = document.querySelectorAll('input[name="checkbox"]:checked');
-                                    checkboxes.forEach(() => selectedUsersCounter++);
-
-                                    formData.set("title", formContainer.querySelector("input[name='title']").value);
-                                    formData.set("date", formContainer.querySelector("input[name='date']").value);
-                                    formData.set("time", formContainer.querySelector("input[name='time']").value);
-                                    formData.set("duration", formContainer.querySelector("input[name='duration']").value);
-                                    formData.set("numberOfParticipants", formContainer.querySelector("input[name='numberOfParticipants']").value);
-
-                                    if (selectedUsersCounter > self.numberOfParticipants - 1 || selectedUsersCounter <= 0) {
-                                        counter++;
-                                    }
-
-                                    function createMeetingResponseManager(request) {
-                                        if (request.readyState === 4) {
-                                            const payload = request.responseText;
-
-                                            switch (request.status) {
-                                                case 200:
-                                                    clearModal();
-                                                    break;
-
-                                                case 400:
-                                                    if (payload === "past") {
-                                                        alert("The server refused to process the provided data.");
-                                                        clearModal();
-                                                    } else if (counter >= 3 || payload === "terminate") {
-                                                        alert("You reached the maximum number of available attempts. Please try again.");
-                                                        clearModal();
-                                                    } else {
-                                                        self.notSent = true;
-                                                        self.message.textContent = "Please deselect at least " + (selectedUsersCounter - self.numberOfParticipants + 1) + " users to proceed. (available attempts: " + (3 - counter) + ")";
-                                                    }
-                                                    break;
-
-                                                case 403:
-                                                    window.location.href = request.getResponseHeader("Location");
-                                                    window.sessionStorage.removeItem('username');
-                                                    break;
-
-                                                default:
-                                                    self.notSent = true;
-                                                    self.message.textContent = "An error was encountered while processing your request..."
-                                            }
-                                        }
-                                    }
-
-                                    makeCall("POST", 'CreateMeeting', formData, function (request) {createMeetingResponseManager(request)}, true);
-                                    self.notSent = false;
-                                }
-                            });
                             break;
 
                         case 403:
@@ -121,35 +117,24 @@ let modal = document.getElementById("modal");
                     }
                 }
             }
-
             makeCall("GET", 'GetUsers', null, function(request) {getUsersResponseManager(request)}, false);
         }
         this.update = function(userList) {
             const self = this;
             let checkbox, label;
 
-            let checkboxes = document.querySelectorAll('input[name="checkbox"]');
-            let isNotPresent = true;
             userList.forEach(function(username) {
-                checkboxes.forEach(function(checkbox) {
-                    if(username === checkbox.value) isNotPresent = false;
-                })
+                checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.name = "checkbox";
+                checkbox.value = username;
 
-                if(isNotPresent === true) {
-                    checkbox = document.createElement("input");
-                    checkbox.type = "checkbox";
-                    checkbox.name = "checkbox";
-                    checkbox.value = username;
+                label = document.createElement("label");
+                label.textContent = username;
+                label.append(checkbox);
+                label.append(document.createElement("br"));
 
-                    label = document.createElement("label");
-                    label.textContent = username;
-                    label.append(checkbox);
-                    label.append(document.createElement("br"));
-
-                    self.userList.append(label);
-
-                    isNotPresent = true;
-                }
+                self.userList.append(label);
             });
 
             self.message.textContent = "Please select max " + (this.numberOfParticipants - 1) + " participants.";
