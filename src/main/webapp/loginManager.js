@@ -45,11 +45,11 @@
     const form = event.target.closest("form");
 
     if (form.checkValidity()) {
-      makeCall("POST", 'SignIn', event.target.closest("form"), function (x) {
-        if (x.readyState === XMLHttpRequest.DONE) {
-          const message = x.responseText;
+      makeCall("POST", 'SignIn', form, function (payload) {
+        if (payload.readyState === XMLHttpRequest.DONE) {
+          const message = payload.responseText;
 
-          switch (x.status) {
+          switch (payload.status) {
             case 200:
               sessionStorage.setItem('username', message);
               window.location.href = "home.html";

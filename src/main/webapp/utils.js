@@ -1,23 +1,20 @@
-/**
- * AJAX call management
- */
 
-	function makeCall(method, url, dataToSend, callBackFunction, isJSON) {
-		const request = new XMLHttpRequest(); // visible by closure
+function makeCall(method, url, dataToSend, callBackFunction, isJSON) {
+	const request = new XMLHttpRequest(); // visible by closure
 
-		request.onreadystatechange = function() {
-			callBackFunction(request)
-		};
+	request.onreadystatechange = function() {
+		callBackFunction(request)
+	};
 
-		request.open(method, url);
+	request.open(method, url);
 
-		if(isJSON === true) {
-			request.send(dataToSend);
+	if(isJSON === true) {
+		request.send(dataToSend);
+	} else {
+		if (dataToSend == null) {
+			request.send();
 		} else {
-			if (dataToSend == null) {
-				request.send();
-			} else {
-				request.send(new FormData(dataToSend));
-			}
+			request.send(new FormData(dataToSend));
 		}
 	}
+}
