@@ -80,7 +80,7 @@ public class CreateMeeting extends HttpServlet {
             Date result = calendarA.getTime();
 
             if (result.before(Calendar.getInstance().getTime())) {
-                response.getWriter().println("past");
+                response.getWriter().print("past");
                 throw new Exception();
             }
 
@@ -133,8 +133,8 @@ public class CreateMeeting extends HttpServlet {
             if(counter >= 3) {
                 session.removeAttribute("title");
                 session.removeAttribute("counter");
-                response.getWriter().println("terminate");
-            } else if(noSelection) response.getWriter().println("zero");
+                response.getWriter().print("terminate");
+            } else if(noSelection) response.getWriter().print("zero");
 
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;

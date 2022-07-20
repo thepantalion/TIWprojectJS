@@ -4,6 +4,7 @@ let modal = document.getElementById("modal");
     let modalButton = document.getElementById("modal-btn");
     let closeButton = document.querySelector(".close-btn");
     let formContainer = document.getElementById("idNewMeetingForm");
+    let message = document.getElementById("modalMessage");
     let counter = 0;
     let userList;
 
@@ -33,6 +34,7 @@ let modal = document.getElementById("modal");
     document.querySelector('input[name="inviteButton"]').addEventListener("click", () => {
         let selectedUsersCounter = 0;
         let formData = new FormData(document.getElementById("modalUserlist").parentNode.parentNode);
+        let numberOfParticipants = formContainer.querySelector("input[name='numberOfParticipants']").value
         let checkboxes = document.querySelectorAll('input[name="checkbox"]:checked');
         checkboxes.forEach(() => selectedUsersCounter++);
 
@@ -42,7 +44,7 @@ let modal = document.getElementById("modal");
         formData.set("duration", formContainer.querySelector("input[name='duration']").value);
         formData.set("numberOfParticipants", formContainer.querySelector("input[name='numberOfParticipants']").value);
 
-        if (selectedUsersCounter > self.numberOfParticipants - 1 || selectedUsersCounter <= 0) {
+        if (selectedUsersCounter > numberOfParticipants - 1 || selectedUsersCounter <= 0) {
             counter++;
         }
 
@@ -59,23 +61,23 @@ let modal = document.getElementById("modal");
                         if (payload === "past") {
                             alert("The server refused to process the provided data.");
                             clearModal();
-                        } else if (counter >= 3 || payload === "terminate") {
+                        } else if (counter >= 3) {
                             alert("You reached the maximum number of available attempts. Please try again.");
                             clearModal();
                         } else if(payload === "zero"){
-                            self.message.textContent = "Please select max " + (this.numberOfParticipants - 1) + " participants. (available attempts: " + (3 - counter) + ")";
+                            message.textContent = "Please select max " + (numberOfParticipants - 1) + " participants. (available attempts: " + (3 - counter) + ")";
                         } else {
-                            self.message.textContent = "Please deselect at least " + (selectedUsersCounter - self.numberOfParticipants + 1) + " users to proceed. (available attempts: " + (3 - counter) + ")";
+                            message.textContent = "Please deselect at least " + (selectedUsersCounter - numberOfParticipants + 1) + " users to proceed. (available attempts: " + (3 - counter) + ")";
                         }
                         break;
 
-                    case 403:
-                        window.location.href = request.getResponseHeader("Location");
+                    case 401:
                         window.sessionStorage.removeItem('username');
+                        window.location.href = request.getResponseHeader("Location");
                         break;
 
                     default:
-                        self.message.textContent = "An error was encountered while processing your request..."
+                        message.textContent = "An error was encountered while processing your request..."
                 }
             }
         }
@@ -85,7 +87,6 @@ let modal = document.getElementById("modal");
 
     function UserList() {
         this.userList = document.getElementById("modalUserlist");
-        this.message = document.getElementById("modalMessage");
         this.numberOfParticipants = formContainer.querySelector("input[name='numberOfParticipants']").value
 
         this.show = function() {
@@ -100,20 +101,20 @@ let modal = document.getElementById("modal");
                             const userList = JSON.parse(payload);
 
                             if (userList.length === 0) {
-                                self.message.textContent = "There are no other users registered yet...";
+                                message.textContent = "There are no other users registered yet...";
                                 return;
                             }
 
                             self.update(userList);
                             break;
 
-                        case 403:
-                            window.location.href = request.getResponseHeader("Location");
+                        case 401:
                             window.sessionStorage.removeItem('username');
+                            window.location.href = request.getResponseHeader("Location");
                             break;
 
                         default:
-                            self.message.textContent = "An error was encountered while retrieving the data..."
+                            message.textContent = "An error was encountered while retrieving the data..."
                     }
                 }
             }
@@ -137,7 +138,7 @@ let modal = document.getElementById("modal");
                 self.userList.append(label);
             });
 
-            self.message.textContent = "Please select max " + (this.numberOfParticipants - 1) + " participants.";
+            message.textContent = "Please select max " + (this.numberOfParticipants - 1) + " participants.";
             self.userList.style.visibility = "visible";
         }
         this.clear = function() {

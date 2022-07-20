@@ -25,6 +25,7 @@ public class LoginFilter implements Filter {
         System.out.print("Login checker filter executing ...\n");
 
         if (session.isNew() || session.getAttribute("user") == null) {
+            httpServletResponse.setStatus(403);
             httpServletResponse.sendRedirect(loginPath);
             return;
         }

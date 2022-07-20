@@ -19,7 +19,10 @@ let controller; //controller needs to be exposed to all
 
             setInterval(this.reset, 40000);
 
-            document.getElementById("logoutButton").addEventListener("click", () => {window.sessionStorage.removeItem("username");});
+            document.getElementById("logoutButton").addEventListener("click", () => {
+                window.sessionStorage.removeItem("username");
+                window.location.href = "index.html";
+            });
         }
         this.reset = function() {
             meetingsCreatedList.reset();
@@ -59,9 +62,9 @@ let controller; //controller needs to be exposed to all
                             self.update(meetingsCreated);
                             break;
 
-                        case 403:
-                            window.location.href = request.getResponseHeader("Location");
+                        case 401:
                             window.sessionStorage.removeItem('username');
+                            window.location.href = request.getResponseHeader("Location");
                             break;
 
                         default:
@@ -126,12 +129,12 @@ let controller; //controller needs to be exposed to all
                                         break;
 
                                     case 400:
-                                        alert("The provided data in not correct. Please change it before submitting invitations.");
+                                        alert("The provided data is not correct. Please change it before submitting invitations.");
                                         break;
 
-                                    case 403:
-                                        window.location.href = request.getResponseHeader("Location");
+                                    case 401:
                                         window.sessionStorage.removeItem('username');
+                                        window.location.href = request.getResponseHeader("Location");
                                         break;
 
                                     default:
