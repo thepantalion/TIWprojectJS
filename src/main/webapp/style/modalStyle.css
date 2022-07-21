@@ -1,4 +1,4 @@
-.modal { /* indica le proprietà che assume la pagina dietro la modal window */
+.modal {
     display: none; /* indica le proprietà che assume la pagina dietro la modal window */
     position: fixed; /* blocca lo spazio dedicato alla finestra senza spostare altri elementi */
     padding-top: 100px;

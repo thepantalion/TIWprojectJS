@@ -32,7 +32,9 @@ let controller; //controller needs to be exposed to all
             meetingsInvitedList.show();
         }
     }
+
     function MeetingList(meetingParagraph, listContainer, listContainerBody, isInvited) {
+        this.meetingParagraph = meetingParagraph;
         this.listContainer = listContainer;
         this.listContainerBody = listContainerBody;
         this.isInvited = isInvited;
@@ -44,22 +46,26 @@ let controller; //controller needs to be exposed to all
             const self = this;
 
             function callBackFunction(request) {
-                if (request.readyState === 4) {
+                if (request.readyState === XMLHttpRequest.DONE) {
                     const payload = request.responseText;
 
                     switch (request.status) {
                         case 200:
-                            const meetingsCreated = JSON.parse(payload);
+                            const meetings = JSON.parse(payload);
 
-                            if (meetingsCreated.length === 0) {
-                                if(isInvited) meetingParagraph.textContent = "There are no invitations...";
-                                else meetingParagraph.textContent = "You have not created any meeting yet...";
+                            if (meetings.length === 0) {
+                                if(isInvited) self.meetingParagraph.textContent = "There are no invitations...";
+                                else self.meetingParagraph.textContent = "You have not created any meeting yet...";
 
                                 listContainer.style.visibility = "hidden"
                                 return;
+
+                            } else {
+                                if(isInvited) self.meetingParagraph.textContent = "These are the meetings you have been invited to: ";
+                                else self.meetingParagraph.textContent = "These are the meetings you have created: ";
+                                self.update(meetings);
                             }
 
-                            self.update(meetingsCreated);
                             break;
 
                         case 401:
@@ -73,8 +79,8 @@ let controller; //controller needs to be exposed to all
                 }
             }
 
-            if(this.isInvited === true) makeCall("GET", 'GetMeetingsInvited', null, function(request) {callBackFunction(request)});
-            else makeCall("GET", 'GetMeetingsCreated', null, function(request) {callBackFunction(request)});
+            if(this.isInvited === true) makeCall("GET", 'GetMeetingsInvited', null, function(request) {callBackFunction(request)}, false);
+            else makeCall("GET", 'GetMeetingsCreated', null, function(request) {callBackFunction(request)}, false);
         };
         this.update = function(meetingList) {
             const self = this;
@@ -122,7 +128,7 @@ let controller; //controller needs to be exposed to all
                     const duration = formContainer.querySelector("input[name='duration']").value;
                     if(number >= 2 && duration > 0) {
                         function verifyMeetingResponseManager(request) {
-                            if (request.readyState === 4) {
+                            if (request.readyState === XMLHttpRequest.DONE) {
                                 switch (request.status) {
                                     case 200:
                                         modal.style.display = "block";

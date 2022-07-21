@@ -1,5 +1,5 @@
 
-function makeCall(method, url, dataToSend, callBackFunction, isJSON) {
+function makeCall(method, url, dataToSend, callBackFunction, isFormData) {
 	const request = new XMLHttpRequest(); // visible by closure
 
 	request.onreadystatechange = function() {
@@ -8,7 +8,7 @@ function makeCall(method, url, dataToSend, callBackFunction, isJSON) {
 
 	request.open(method, url);
 
-	if(isJSON === true) {
+	if(isFormData === true) {
 		request.send(dataToSend);
 	} else {
 		if (dataToSend == null) {

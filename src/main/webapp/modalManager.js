@@ -14,6 +14,8 @@ let modal = document.getElementById("modal");
         counter = 0;
         modal.style.display = "none"
     }
+
+    //DA CANCELLARE
     modalButton.addEventListener("click", () => {
         formContainer.querySelector("input[name='title']").value = "test";
         formContainer.querySelector("input[name='date']").value = "2023-12-10";
@@ -23,14 +25,17 @@ let modal = document.getElementById("modal");
 
         modal.style.display = "block"
     });
+
     closeButton.addEventListener("click", () => {
         clearModal();
     });
+
     window.addEventListener("click", (e) => {
         if(e.target === modal) {
             clearModal();
         }
     });
+
     document.querySelector('input[name="inviteButton"]').addEventListener("click", () => {
         let selectedUsersCounter = 0;
         let formData = new FormData(document.getElementById("modalUserlist").parentNode.parentNode);
@@ -49,7 +54,7 @@ let modal = document.getElementById("modal");
         }
 
         function createMeetingResponseManager(request) {
-            if (request.readyState === 4) {
+            if (request.readyState === XMLHttpRequest.DONE) {
                 const payload = request.responseText;
 
                 switch (request.status) {
@@ -61,7 +66,7 @@ let modal = document.getElementById("modal");
                         if (payload === "past") {
                             alert("The server refused to process the provided data.");
                             clearModal();
-                        } else if (counter >= 3) {
+                        } else if (counter >= 3 || payload === "terminate") {
                             alert("You reached the maximum number of available attempts. Please try again.");
                             clearModal();
                         } else if(payload === "zero"){
@@ -93,7 +98,7 @@ let modal = document.getElementById("modal");
             const self = this;
 
             function getUsersResponseManager(request) {
-                if (request.readyState === 4) {
+                if (request.readyState === XMLHttpRequest.DONE) {
                     const payload = request.responseText;
 
                     switch (request.status) {
