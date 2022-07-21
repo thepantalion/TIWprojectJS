@@ -154,7 +154,7 @@ let controller; //controller needs to be exposed to all
             })
         }
         this.reset = function() {
-            formContainer.reset();
+            this.formContainer.reset();
         }
     }
 
