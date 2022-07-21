@@ -82,6 +82,7 @@
               const message = x.responseText;
               switch (x.status) {
                 case 200:
+                  form.reset();
                   document.getElementById("signUpErrorMessage").textContent = message;
                   break;
                 case 400: // bad request
