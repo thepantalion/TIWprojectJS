@@ -1,7 +1,6 @@
 let modal = document.getElementById("modal");
 
 (function() {
-    let modalButton = document.getElementById("modal-btn");
     let closeButton = document.querySelector(".close-btn");
     let formContainer = document.getElementById("idNewMeetingForm");
     let message = document.getElementById("modalMessage");
@@ -14,28 +13,14 @@ let modal = document.getElementById("modal");
         counter = 0;
         modal.style.display = "none"
     }
-
-    //DA CANCELLARE
-    modalButton.addEventListener("click", () => {
-        formContainer.querySelector("input[name='title']").value = "test";
-        formContainer.querySelector("input[name='date']").value = "2023-12-10";
-        formContainer.querySelector("input[name='time']").value = "12:20";
-        formContainer.querySelector("input[name='duration']").value = 30;
-        formContainer.querySelector("input[name='numberOfParticipants']").value = 5;
-
-        modal.style.display = "block"
-    });
-
     closeButton.addEventListener("click", () => {
         clearModal();
     });
-
     window.addEventListener("click", (e) => {
         if(e.target === modal) {
             clearModal();
         }
     });
-
     document.querySelector('input[name="inviteButton"]').addEventListener("click", () => {
         let selectedUsersCounter = 0;
         let formData = new FormData(document.getElementById("modalUserlist").parentNode.parentNode);

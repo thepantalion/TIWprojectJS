@@ -1,4 +1,4 @@
-let controller; //controller needs to be exposed to all
+let controller;
 
 (function() {
     let meetingsCreatedList, meetingsInvitedList, form;

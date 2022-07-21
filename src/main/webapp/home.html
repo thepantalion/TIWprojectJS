@@ -18,7 +18,6 @@
     <p id ="idUsername"></p>
 
     <p id="idMeetingsCreatedParagraph"></p> <!-- shows "You have not created any meeting yet!" or "Meetings you have created"-->
-     <!-- hide the table if no meetings have been created by the user -->
     <table id="idMeetingsCreatedTable">
         <thead>
             <tr>
@@ -32,21 +31,19 @@
     </table>
 
     <p id="idMeetingsInvitedParagraph"></p> <!-- shows "You have not been invited to any meeting yet!" or "Meetings you are invited to"-->
-    <div> <!-- hide the table if no meetings have been created by the user -->
-        <table id="idMeetingsInvitedTable">
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Duration</th>
-                    <th>Host</th>
+    <table id="idMeetingsInvitedTable">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Duration</th>
+                <th>Host</th>
 
-                </tr>
-            </thead>
-            <tbody id="idMeetingsInvitedListContainer"></tbody>
-        </table>
-    </div>
+            </tr>
+        </thead>
+        <tbody id="idMeetingsInvitedListContainer"></tbody>
+    </table>
 
     <div>
         <p>Use the form below to create a meeting</p>
@@ -69,8 +66,6 @@
             </fieldset>
         </form>
     </div>
-
-    <button id="modal-btn"> test modal hello </button>
 
     <div id="modal" class="modal">
         <div class="modal-header">
