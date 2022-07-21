@@ -148,6 +148,10 @@ let controller; //controller needs to be exposed to all
                     }
                 } else formContainer.reportValidity();
             });
+
+            this.formContainer.querySelector("input[name='clearButton']").addEventListener("click", () =>{
+                this.reset();
+            })
         }
         this.reset = function() {
             formContainer.reset();
