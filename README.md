@@ -10,3 +10,11 @@ La pagina evidenzia nell'elenco gli utenti scelti in precedenza come preselezion
 la riunione è memorizzata nella base di dati e associata agli utenti invitati e l'utente è rimandato alla **HOME PAGE**. Al terzo tentativo scorretto di assegnare troppi invitati a una riunione appare una pagina **CANCELLAZIONE** con un messaggio 
 "Tre tentativi di definire una riunione con troppi partecipanti, la riunione non sarà creata" e un link per tornare all'**HOME PAGE**. In questo caso la riunione NON è memorizzata nella base di dati.
 L'applicazione non deve registrare nella base di dati riunioni con numero eccessivo di partecipanti. L'applicazione consente il logout dell'utente.
+
+Si realizzi un'applicazione client server web che modifica le specifiche precedenti come segue:
+• L'applicazione supporta registrazione e login mediante una pagina pubblica con opportune form. La registrazione controlla la validità sintattica dell'indirizzo di email e l'uguaglianza tra i campi "password" e "ripeti password", anche a lato client. La registrazione controlla l'unicità dello username.
+• Dopo il login, l'intera applicazione è realizzata con un'unica pagina.
+• Ogni interazione dell'utente è gestita senza ricaricare completamente la pagina, ma produce l'invocazione asincrona del server e l'eventuale modifica del contenuto da aggiornare a seguito dell'evento.
+• La scelta dall'anagrafica deve essere realizzata con una pagina modale con i bottoni invia e cancella. NB: è una finestrella che si apre per dare una qualche scelta o un qualche messaggio all'utente: https://it.wikipedia.org/wiki/Finestra_modale
+• I controlli di correttezza del numero di invitati e del massimo numero di tentativi, con i relativi messaggi di avvertimento, devono essere realizzati anche a lato client.
+• Lo stato dell'interazione (numero di tentativi) deve essere memorizzato a lato client.
