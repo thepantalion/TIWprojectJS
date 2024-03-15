@@ -1,4 +1,7 @@
 ### Project description
+This project proposed the creation of both the back-end (in Java) and the front-end (HTML+JavaScript) for a website that manages meetings and participants to those meetings. The specifications are reported below (in italian, an english version will be added later).
+
+
 Un'applicazione web consente la gestione di riunioni online. 
 L'applicazione supporta registrazione e login mediante una pagina pubblica con opportune form. La registrazione controlla la validità sintattica dell'indirizzo di email e l'uguaglianza tra i campi "password" e
 "ripeti password". 
@@ -11,10 +14,10 @@ la riunione è memorizzata nella base di dati e associata agli utenti invitati e
 "Tre tentativi di definire una riunione con troppi partecipanti, la riunione non sarà creata" e un link per tornare all'**HOME PAGE**. In questo caso la riunione NON è memorizzata nella base di dati.
 L'applicazione non deve registrare nella base di dati riunioni con numero eccessivo di partecipanti. L'applicazione consente il logout dell'utente.
 
-Si realizzi un'applicazione client server web che modifica le specifiche precedenti come segue:
-• L'applicazione supporta registrazione e login mediante una pagina pubblica con opportune form. La registrazione controlla la validità sintattica dell'indirizzo di email e l'uguaglianza tra i campi "password" e "ripeti password", anche a lato client. La registrazione controlla l'unicità dello username.
-• Dopo il login, l'intera applicazione è realizzata con un'unica pagina.
-• Ogni interazione dell'utente è gestita senza ricaricare completamente la pagina, ma produce l'invocazione asincrona del server e l'eventuale modifica del contenuto da aggiornare a seguito dell'evento.
-• La scelta dall'anagrafica deve essere realizzata con una pagina modale con i bottoni invia e cancella. NB: è una finestrella che si apre per dare una qualche scelta o un qualche messaggio all'utente: https://it.wikipedia.org/wiki/Finestra_modale
-• I controlli di correttezza del numero di invitati e del massimo numero di tentativi, con i relativi messaggi di avvertimento, devono essere realizzati anche a lato client.
-• Lo stato dell'interazione (numero di tentativi) deve essere memorizzato a lato client.
+Si realizzi un'applicazione client server web che modifica le specifiche precedenti come segue [introducendo JavaScript]:
+- L'applicazione supporta registrazione e login mediante una pagina pubblica con opportune form. La registrazione controlla la validità sintattica dell'indirizzo di email e l'uguaglianza tra i campi "password" e "ripeti password", anche a lato client. La registrazione controlla l'unicità dello username.
+- Dopo il login, l'intera applicazione è realizzata con un'unica pagina.
+- Ogni interazione dell'utente è gestita senza ricaricare completamente la pagina, ma produce l'invocazione asincrona del server e l'eventuale modifica del contenuto da aggiornare a seguito dell'evento.
+- La scelta dall'anagrafica deve essere realizzata con una pagina modale con i bottoni invia e cancella. NB: è una finestrella che si apre per dare una qualche scelta o un qualche messaggio all'utente: https://it.wikipedia.org/wiki/Finestra_modale
+- I controlli di correttezza del numero di invitati e del massimo numero di tentativi, con i relativi messaggi di avvertimento, devono essere realizzati anche a lato client.
+- Lo stato dell'interazione (numero di tentativi) deve essere memorizzato a lato client.
